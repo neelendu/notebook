@@ -46,15 +46,20 @@ define([
         if (event) {
             event.preventDefault();
         }
-        var w = window.open('#', IPython._target);
+        // var w = window.open('#', IPython._target);
         var base_url = this.base_url;
         var settings = {
             type : "POST",
             dataType: "json",
             success : function (data, status, xhr) {
                 var name = data.name;
-                w.location = utils.url_path_join(base_url, 'terminals', 
-                    utils.encode_uri_components(name));
+                // w.location = utils.url_path_join(base_url, 'terminals', 
+                //     utils.encode_uri_components(name));
+                var data = {
+                    url: utils.url_path_join(base_url, 'terminals', utils.encode_uri_components(name)),
+                    action: 'new_terminal'
+                }
+                window.parent.postMessage(data, "*");
             },
             error : function(jqXHR, status, error){
                 w.close();
@@ -96,9 +101,18 @@ define([
         item.data('term-name', name);
         item.find(".item_name").text("terminals/" + name);
         item.find(".item_icon").addClass("fa fa-terminal");
+        // var link = item.find("a.item_link")
+        //     .attr('href', utils.url_path_join(this.base_url, "terminals",
+        //         utils.encode_uri_components(name)));
         var link = item.find("a.item_link")
-            .attr('href', utils.url_path_join(this.base_url, "terminals",
-                utils.encode_uri_components(name)));
+            .attr('href', 'javascript:void(0)')
+            .click(function(){
+                var data = {
+                    url : utils.url_path_join("/terminals", utils.encode_uri_components(name)),
+                    action: 'running_session'
+                };
+                window.parent.postMessage(data, "*");
+            });
         link.attr('target', IPython._target||'_blank');
         this.add_shutdown_button(name, item);
     };
@@ -119,6 +133,11 @@ define([
                 var url = utils.url_path_join(that.base_url, 'api/terminals',
                     utils.encode_uri_components(name));
                 utils.ajax(url, settings);
+                var data = {
+                    url : utils.url_path_join(that.base_url, '/terminals', utils.encode_uri_components(name)),
+                    action: 'shutdown_terminal'
+                };
+                window.parent.postMessage(data, "*");
                 return false;
             });
         item.find(".item_buttons").text("").append(shutdown_button);
