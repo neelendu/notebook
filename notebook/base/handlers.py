@@ -75,7 +75,7 @@ class AuthenticatedHandler(web.RequestHandler):
             return self.settings['headers']['Content-Security-Policy']
 
         return '; '.join([
-            "frame-ancestors 'self'",
+            "'none'",
             # Make sure the report-uri is relative to the base_url
             "report-uri " + self.settings.get('csp_report_uri', url_path_join(self.base_url, csp_report_uri)),
         ])

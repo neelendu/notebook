@@ -14,6 +14,7 @@ define([
 ], function($, IPython, utils, i18n, dialog, events, keyboard, moment, bidi) {
     "use strict";
 
+    var isframe = (window === window.parent) ? false : true;
     var extension = function(path){
       /**
        *  return the last pat after the dot in a filepath
@@ -166,17 +167,22 @@ define([
         if (!NotebookList._bound_singletons) {
             NotebookList._bound_singletons = true;
             $('#new-file').click(function(e) {
-                // var w = window.open('', IPython._target);
+                if (!isframe) {
+                    var w = window.open('', IPython._target);
+                }
                 that.contents.new_untitled(that.notebook_path || '', {type: 'file', ext: '.txt'}).then(function(data) {
-                    // w.location = utils.url_path_join(
-                    //     that.base_url, 'edit',
-                    //     utils.encode_uri_components(data.path)
-                    // );
-                    var data = {
-                        url: utils.url_path_join(that.base_url, 'edit', utils.encode_uri_components(data.path)),
-                        action: 'new_file'
+                    if(!isframe) {
+                        w.location = utils.url_path_join(
+                            that.base_url, 'edit',
+                            utils.encode_uri_components(data.path)
+                        );
+                    } else {
+                        var msgData = {
+                            url: utils.url_path_join(that.base_url, 'edit', utils.encode_uri_components(data.path)),
+                            action: 'new_file'
+                        }
+                        window.parent.postMessage(msgData, "*");
                     }
-                    window.parent.postMessage(data, "*");
                 }).catch(function (e) {
                     w.close();
                     dialog.modal({
@@ -864,15 +870,18 @@ define([
         // directory nav doesn't open new tabs
         // files, notebooks do
         if (model.type !== "directory") {
-            // link.attr('target', IPython._target);
-            link.attr('href', 'javascript:void(0)')
-            .click(function(){
-                var data = {
-                    url: linkUrl,
-                    action: 'running_session'
-                };
-                window.parent.postMessage(data, '*');       
-            });
+            if(isframe){
+                link.attr('href', 'javascript:void(0)')
+                    .click(function(){
+                        var data = {
+                            url: linkUrl,
+                            action: 'running_session'
+                        };
+                        window.parent.postMessage(data, '*');       
+                    });
+            } else {
+                link.attr('target', IPython._target);
+            }
         } else {
             // Replace with a click handler that will use the History API to
             // push a new route without reloading the page if the click is
@@ -944,11 +953,13 @@ define([
             dataType : "json",
             success : function () {
                 //that.load_sessions();
-                var data = {
-                    url : path,
-                    action: 'shutdown_notebook'
-                };
-                window.parent.postMessage(data, "*");
+                if (isframe) {
+                    var msgData = {
+                        url : path,
+                        action: 'shutdown_notebook'
+                    };
+                    window.parent.postMessage(msgData, "*");
+                }
                 that.load_sessions();
             },
             error : utils.log_ajax_error
@@ -1204,12 +1215,15 @@ define([
         that.selected.forEach(function(item) {
             var item_path = utils.encode_uri_components(item.path);
             var item_type = that._is_notebook(item) ? 'notebooks' : that._is_viewable(item) ? 'view' : 'files';
-            // window.open(utils.url_path_join(that.base_url, item_type, item_path), IPython._target);
-            var data = {
-                url : utils.url_path_join(that.base_url, item_type, item_path),
-                action: 'new_file'
-            };
-            window.parent.postMessage(data, "*");
+            if (iframe){
+                var msgData = {
+                    url : utils.url_path_join(that.base_url, item_type, item_path),
+                    action: 'new_file'
+                };
+                window.parent.postMessage(msgData, "*");
+            } else {
+                window.open(utils.url_path_join(that.base_url, item_type, item_path), IPython._target);    
+            }
       	});
     };
 
@@ -1217,12 +1231,15 @@ define([
         var that = this;
         that.selected.forEach(function(item) {
             var item_path = utils.encode_uri_components(item.path);
-            // window.open(utils.url_path_join(that.base_url, 'edit', item_path), IPython._target);
-            var data = {
-                url : utils.url_path_join(that.base_url, 'edit', item_path),
-                action: 'new_file'
-            };
-            window.parent.postMessage(data, "*");
+            if (iframe) {
+                var msgData = {
+                    url : utils.url_path_join(that.base_url, 'edit', item_path),
+                    action: 'new_file'
+                };
+                window.parent.postMessage(msgData, "*");
+            } else {
+                window.open(utils.url_path_join(that.base_url, 'edit', item_path), IPython._target);
+            }
       	});
     };
 
