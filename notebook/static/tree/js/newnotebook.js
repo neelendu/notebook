@@ -10,6 +10,7 @@ define([
 ], function ($, IPython, utils, i18n, dialog) {
     "use strict";
     
+    var isframe = (window === window.parent) ? false : true;
     var NewNotebookWidget = function (selector, options) {
         this.selector = selector;
         this.base_url = options.base_url;
@@ -77,7 +78,10 @@ define([
         /** create and open a new notebook */
         var that = this;
         kernel_name = kernel_name || this.default_kernel;
-        // var w = window.open(undefined, IPython._target);
+        var w;
+        if (!isframe) {
+            w = window.open(undefined, IPython._target);
+        }
         var dir_path = $('body').attr('data-notebook-path');
         this.contents.new_untitled(dir_path, {type: "notebook"}).then(
             function (data) {
@@ -88,12 +92,16 @@ define([
                 if (kernel_name) {
                     url += "?kernel_name=" + kernel_name;
                 }
-                // w.location = url;
-                var data = {
-                    url: url,
-                    action: 'new_notebook'
+                if (isframe) {
+                    var msgData = {
+                        url: url,
+                        action: 'new_notebook'
+                    };
+                    window.parent.postMessage(msgData, "*");
+                    
+                } else {
+                    w.location = url;
                 }
-                window.parent.postMessage(data, "*");
         }).catch(function (e) {
             w.close();
             // This statement is used simply so that message extraction
