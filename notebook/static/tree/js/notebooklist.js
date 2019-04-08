@@ -869,6 +869,11 @@ define([
 
         // directory nav doesn't open new tabs
         // files, notebooks do
+        var linkUrl = utils.url_path_join(
+            this.base_url,
+            uri_prefix,
+            utils.encode_uri_components(model.path)
+        );
         if (model.type !== "directory") {
             if(isframe){
                 link.attr('href', 'javascript:void(0)')
