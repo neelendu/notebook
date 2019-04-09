@@ -54,7 +54,7 @@ define([
             dataType: "json",
             success : function (data, status, xhr) {
                 var name = data.name;
-                if (iframe) {
+                if (isframe) {
                     var msgData = {
                         url: utils.url_path_join(base_url, 'terminals', utils.encode_uri_components(name)),
                         action: 'new_terminal'
@@ -106,7 +106,7 @@ define([
         item.find(".item_name").text("terminals/" + name);
         item.find(".item_icon").addClass("fa fa-terminal");
         var link;
-        if (iframe) {
+        if (isframe) {
             link = item.find("a.item_link")
                 .attr('href', 'javascript:void(0)')
                 .click(function(){
@@ -141,7 +141,7 @@ define([
                 var url = utils.url_path_join(that.base_url, 'api/terminals',
                     utils.encode_uri_components(name));
                 utils.ajax(url, settings);
-                if (iframe) {
+                if (isframe) {
                     var msgData = {
                         url : utils.url_path_join(that.base_url, '/terminals', utils.encode_uri_components(name)),
                         action: 'shutdown_terminal'
