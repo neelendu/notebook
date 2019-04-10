@@ -193,7 +193,7 @@ requirejs([
     
     // set hash on tab click
     var isframe = (window === window.parent) ? false : true;
-    if(isframe) {
+    if(!isframe) {
         $("#tabs").find("a").click(function(e) {
             // Prevent the document from jumping when the active tab is changed to a 
             // tab that has a lot of content.
