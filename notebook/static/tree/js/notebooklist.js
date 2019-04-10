@@ -167,8 +167,9 @@ define([
         if (!NotebookList._bound_singletons) {
             NotebookList._bound_singletons = true;
             $('#new-file').click(function(e) {
+                var w;
                 if (!isframe) {
-                    var w = window.open('', IPython._target);
+                    w = window.open('', IPython._target);
                 }
                 that.contents.new_untitled(that.notebook_path || '', {type: 'file', ext: '.txt'}).then(function(data) {
                     if(!isframe) {
