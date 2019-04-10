@@ -404,11 +404,11 @@ define([
             )
             .click(function(e) {
                 // Allow the default browser action when the user holds a modifier (e.g., Ctrl-Click)
-                if(e.altKey || e.metaKey || e.shiftKey) {
+                if(e.altKey || e.metaKey || e.shiftKey || isframe) {
                     return true;
                 }
                 var path = '';
-                window.history.replaceState(
+                window.history.pushState(
                     {path: path},
                     'Home',
                     utils.url_path_join(that.base_url, 'tree')
@@ -433,10 +433,10 @@ define([
                 .text(path_part)
                 .click(function(e) {
                     // Allow the default browser action when the user holds a modifier (e.g., Ctrl-Click)
-                    if(e.altKey || e.metaKey || e.shiftKey) {
+                    if(e.altKey || e.metaKey || e.shiftKey || isframe) {
                         return true;
                     }
-                    window.history.replaceState(
+                    window.history.pushState(
                         {path: path},
                         path,
                         url
@@ -889,14 +889,15 @@ define([
                 link.attr('target', IPython._target);
             }
         } else {
+            if(!isframe){
             // Replace with a click handler that will use the History API to
             // push a new route without reloading the page if the click is
             // not modified (e.g., Ctrl-Click)
             link.click(function (e) {
-                if(e.altKey || e.metaKey || e.shiftKey) {
+                if(e.altKey || e.metaKey || e.shiftKey || isframe) {
                     return true;
                 }
-                window.history.replaceState({
+                window.history.pushState({
                     path: model.path
                 }, model.path, utils.url_path_join(
                     that.base_url,
@@ -906,6 +907,7 @@ define([
                 that.update_location(model.path);
                 return false;
             });
+        }
         }
 
         // Add in the date that the file was last modified
