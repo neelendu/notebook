@@ -893,20 +893,29 @@ define([
             // push a new route without reloading the page if the click is
             // not modified (e.g., Ctrl-Click)
             if(isframe) {
-                link.click(function (e) {
-                    if(e.altKey || e.metaKey || e.shiftKey) {
-                        return true;
-                    }
-                    window.history.replaceState({
-                        path: model.path
-                    }, model.path, utils.url_path_join(
-                        that.base_url,
-                        'tree',
-                        utils.encode_uri_components(model.path)
-                    ));
-                    that.update_location(model.path);
-                    return false;
-                });
+                link.attr('href', 'javascript:void(0)')
+                    .click(function(){
+                        var data = {
+                            url: linkUrl,
+                            action: 'change_folder'
+                        };
+                        window.parent.postMessage(data, '*');       
+                    });
+
+                // link.click(function (e) {
+                //     if(e.altKey || e.metaKey || e.shiftKey) {
+                //         return true;
+                //     }
+                //     window.history.replaceState({
+                //         path: model.path
+                //     }, model.path, utils.url_path_join(
+                //         that.base_url,
+                //         'tree',
+                //         utils.encode_uri_components(model.path)
+                //     ));
+                //     that.update_location(model.path);
+                //     return false;
+                // });
             } else {
                 link.click(function (e) {
                     if(e.altKey || e.metaKey || e.shiftKey) {
